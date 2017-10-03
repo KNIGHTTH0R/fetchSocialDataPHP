@@ -1,5 +1,7 @@
 <?php
 
+require_once 'function.php';
+
 $sUserAgent     = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36';
 $sUrlFacebook   = 'https://www.facebook.com/nytimes/photos/a.283559809998.33779.5281959998/10151320714864999/?type=1&theater';
 $sUrlInsta      = 'https://www.instagram.com/p/BYqrvBfhNjP/';

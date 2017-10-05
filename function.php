@@ -180,6 +180,7 @@ function fGetInstagramPhotoPost($sUrl) {
 *     'data' => array(
 *       'url'             => 'String',
 *       'author'          => 'String',
+*       'authorName'      => 'String',
 *       'authorImage'     => 'String - url',
 *       'date'            => 'String - timestamp',
 *       'text'            => 'String',
@@ -200,12 +201,14 @@ function fGetTwitterPhotoPost($sUrl) {
   }
   $aPattern     = array(
     'author'          => '/twitter.com\/(.*)\/status\/(.*)/',
+    'authorName'      => '/<meta  property=\"og:title\" content=\"(.*) on Twitter\">/',
     'authorImage'     => '/<img class=\"avatar js-action-profile-avatar\" src=\"(.*)\" alt=\"\">/',
     'date'            => '/data-time=\"(.*)\" data-time-ms=\"(.*)\"/',
     'text'            => '/<meta  property=\"og:description\" content=\"(.*)\">/',
     'image'           => '/<meta  property=\"og:image\" content=\"(.*)\">/',
   );
   preg_match(       $aPattern['author'],        $sUrl,      $aOutputData['author']);
+  preg_match_all(   $aPattern['authorName'],        $sContent,  $aOutputData['authorName']);
   preg_match_all(   $aPattern['authorImage'],   $sContent,  $aOutputData['authorImage']);
   preg_match_all(   $aPattern['date'],          $sContent,  $aOutputData['date']);
   preg_match_all(   $aPattern['text'],          $sContent,  $aOutputData['text']);
@@ -213,13 +216,14 @@ function fGetTwitterPhotoPost($sUrl) {
   $aOutputData = array(
     'url'         => $sUrl,
     'author'      => $aOutputData['author'][1],
+    'authorName'  => $aOutputData['authorName'][1][0],
     'authorImage' => $aOutputData['authorImage'][1][0],
     'date'        => $aOutputData['date'][1][0],
     'text'        => $aOutputData['text'][1][0],
     'image'       => $aOutputData['image'][1],
   );
-  if( empty($aOutputData['author']) || empty($aOutputData['authorImage']) || empty($aOutputData['date']) ||
-    empty($aOutputData['text']) || empty($aOutputData['image']) ) {
+  if( empty($aOutputData['author']) || empty($aOutputData['authorName']) || empty($aOutputData['authorImage']) || 
+    empty($aOutputData['date']) || empty($aOutputData['text']) || empty($aOutputData['image']) ) {
     return array(
       'error' => array(
         'code'    => '202',
@@ -235,3 +239,20 @@ function fGetTwitterPhotoPost($sUrl) {
     )
   );
 }
+
+
+echo '
+<form method="POST" action="#">
+<input type="text" name="formUrl" />
+<input type="submit" />
+</form>
+';
+
+if( !empty( $_POST['formUrl'] ) ) {
+
+  var_dump(
+    fGetTwitterPhotoPost( $_POST['formUrl'] )['success']['data']
+  );
+}
+
+exit();

@@ -81,7 +81,8 @@ function fGetFacebookPhotoPost($sUrl) {
     empty($aOutputData['text']) || empty($aOutputData['image']) ) {
     return array(
       'error' => array(
-        'code'    => '202'
+        'code'    => '202',
+        'data'      => $aOutputData
       )
     );
   }
@@ -148,10 +149,85 @@ function fGetInstagramPhotoPost($sUrl) {
     empty($aOutputData['text']) || empty($aOutputData['image']) ) {
     return array(
       'error' => array(
-        'code'    => '202'
+        'code'    => '202',
+        'data'      => $aOutputData
       )
     );
   }
+  return array(
+    'success' =>  array(
+      'code'      => '200',
+      'data'      => $aOutputData
+    )
+  );
+}
+
+/*
+* @fGetTwitterPhotoPost
+* @param {String} sUrl - Twitter post photo url.
+* @return {Array} The output result.
+* @example "on error"
+* array(
+*   'error' => array(
+*     'code' => '404|202',
+*     'data' => array((...))
+*   )
+* )
+* @example "on success"
+* array(
+*   'success' => array(
+*     'code' => '202',
+*     'data' => array(
+*       'url'             => 'String',
+*       'author'          => 'String',
+*       'authorImage'     => 'String - url',
+*       'date'            => 'String - timestamp',
+*       'text'            => 'String',
+*       'image'           => 'String - url'
+*     )
+*   )
+* )
+*/
+function fGetTwitterPhotoPost($sUrl) {
+  $sContent     = fGetPageContent($sUrl);
+  $aOutputData  = array();
+  if( empty($sContent) ) {
+    return array(
+      'error' => array(
+        'code' => '404'
+      )
+    );
+  }
+  $aPattern     = array(
+    'author'          => '/twitter.com\/(.*)\/status\/(.*)/',
+    'authorImage'     => '/<img class=\"avatar js-action-profile-avatar\" src=\"(.*)\" alt=\"\">/',
+    'date'            => '/data-time=\"(.*)\" data-time-ms=\"(.*)\"/',
+    'text'            => '/<meta  property=\"og:description\" content=\"(.*)\">/',
+    'image'           => '/<meta  property=\"og:image\" content=\"(.*)\">/',
+  );
+  preg_match(       $aPattern['author'],        $sUrl,      $aOutputData['author']);
+  preg_match_all(   $aPattern['authorImage'],   $sContent,  $aOutputData['authorImage']);
+  preg_match_all(   $aPattern['date'],          $sContent,  $aOutputData['date']);
+  preg_match_all(   $aPattern['text'],          $sContent,  $aOutputData['text']);
+  preg_match_all(   $aPattern['image'],         $sContent,  $aOutputData['image']);
+  $aOutputData = array(
+    'url'         => $sUrl,
+    'author'      => $aOutputData['author'][1],
+    'authorImage' => $aOutputData['authorImage'][1][0],
+    'date'        => $aOutputData['date'][1][0],
+    'text'        => $aOutputData['text'][1][0],
+    'image'       => $aOutputData['image'][1],
+  );
+  if( empty($aOutputData['author']) || empty($aOutputData['authorImage']) || empty($aOutputData['date']) ||
+    empty($aOutputData['text']) || empty($aOutputData['image']) ) {
+    return array(
+      'error' => array(
+        'code'    => '202',
+        'data'      => $aOutputData
+      )
+    );
+  }
+  if($aOutputData)
   return array(
     'success' =>  array(
       'code'      => '200',
